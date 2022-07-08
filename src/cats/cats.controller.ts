@@ -1,16 +1,17 @@
 import { Body, Controller, Delete, Get, Header, Headers, HttpCode, Param, Post, Query, Redirect, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { CatsService } from './cats.service';
 import { CreateCatDto } from './dto/create-cat-dto';
+import { Cat } from './interface/cat.interface';
 
 @Controller('cats')
 export class CatsController {
+  constructor (private readonly catsService: CatsService) {}
+
   @Get()
   @HttpCode(200)
-  findAll(@Query() { express }: any) {
-    return {
-      message: 'Retorna todos os gatos [nestjs]',
-      query: express
-    }
+  async findAll(): Promise<Cat[]> {
+    return await this.catsService.findAll()
   }
 
   @Get('express')
@@ -20,7 +21,8 @@ export class CatsController {
 
   @Post()
   create(@Res() response: Response, @Body() createCatDto: CreateCatDto): Response {
-    return response.status(200).json({ message: 'Criado um novo gato', cat: createCatDto })
+    this.catsService.create(createCatDto)
+    return response.status(201).json({ message: 'Criado um novo gato', cat: createCatDto })
   }
 
   @Get('ab*cd')
